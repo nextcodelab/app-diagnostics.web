@@ -1,5 +1,23 @@
-import { apiGet } from "./api";
+import { APPSCRIPT_URL } from "./APP_SCRIPT_URL";
 import type { RawLog } from "../models/rawLog";
+
+export async function apiGet<T>(
+  params: Record<string, string>
+): Promise<T> {
+  const url = new URL(APPSCRIPT_URL);
+
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.set(key, value);
+  });
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status}`);
+  }
+
+  return response.json();
+}
 
 export function fetchApps(): Promise<string[]> {
   return apiGet<string[]>({
