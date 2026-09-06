@@ -7,3 +7,9 @@ npx tsc --noEmit
 git status
 git commit -m "Initial App Diagnostics web project"
 git push -u origin main
+
+
+
+git add .
+git commit -m "Update App Diagnostics web project"
+git push

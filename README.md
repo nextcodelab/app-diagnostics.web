@@ -4,6 +4,10 @@ A lightweight web-based diagnostics dashboard for viewing, analyzing, and monito
 
 The project is built with **Vite + TypeScript** and is designed to work as a standalone web application. It can also be built into a self-contained HTML file for use inside a desktop application such as the WinUI-based application that consumes this diagnostics dashboard.
 
+## Screenshots
+
+![App Diagnostics Screenshot](https://github.com/nextcodelab/app-diagnostics.web/blob/main/assets/screen.jpeg?raw=true)
+
 ## Purpose
 
 `app-diagnostics.web` provides a centralized interface for analyzing application error logs without requiring the diagnostics logic to be implemented directly inside the desktop application.
