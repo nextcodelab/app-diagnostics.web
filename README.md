@@ -398,6 +398,12 @@ Chart rendering is kept separate from the dashboard logic.
 
 ## `src/mock/mockData.ts`
 
+# Google Appscript code
+This is the Google Apps Script code used with Google Sheets for App Diagnostics. Can be edited and extend the script to add or customize functionality according the needs.
+
+https://github.com/nextcodelab/app-diagnostics.web/blob/main/src/api/appscript_code.js
+---
+
 Contains development/test data.
 
 When the Google Apps Script API is unavailable or no API URL is configured, mock data can be used to develop the dashboard without requiring the backend.
