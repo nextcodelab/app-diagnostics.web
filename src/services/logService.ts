@@ -297,76 +297,7 @@ export async function refreshCurrentAppLogs() {
     }
   }
 }
-//REFRESH LOGS
 
-export async function refreshCurrentApp() {
-  const refreshButton = document.getElementById(
-    "btn-refresh",
-  ) as HTMLButtonElement | null;
-
-  const currentApp = State.currentSheetName;
-
-  if (!currentApp) {
-    return;
-  }
-
-  try {
-    if (refreshButton) {
-      refreshButton.disabled = true;
-      refreshButton.textContent = "🔄 Refreshing...";
-    }
-
-    toggleLoading(true);
-
-    // =========================================
-    // 1. Refresh application list
-    // =========================================
-
-    const apps = await fetchApps();
-
-    State.apps = apps;
-
-    // Update app list cache
-    cacheApps(apps);
-
-    // Re-render application menu
-    renderAppList();
-
-    // =========================================
-    // 2. Refresh currently selected app logs
-    // =========================================
-
-    if (apps.includes(currentApp)) {
-      const raw = await fetchLogs(currentApp);
-
-      // Update log cache
-      cacheLogs(currentApp, raw);
-
-      // Process fresh logs
-      processLogs(raw);
-
-      populateVersionFilter();
-      applyFilters();
-
-      // Keep selected app
-      State.currentSheetName = currentApp;
-    } else if (apps.length > 0) {
-      // Current app no longer exists
-      await loadLogs(apps[0], true);
-    }
-  } catch (error) {
-    console.error("Refresh failed:", error);
-
-    alert("Failed to refresh application data.");
-  } finally {
-    toggleLoading(false);
-
-    if (refreshButton) {
-      refreshButton.disabled = false;
-      refreshButton.textContent = "🔄 Refresh";
-    }
-  }
-}
 //CACHE KEYS
 const APP_LIST_CACHE_KEY = "appDiagnostics.appList";
 const LOG_CACHE_PREFIX = "appDiagnostics.logs.";

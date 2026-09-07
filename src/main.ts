@@ -2,7 +2,6 @@ import { State } from "./state/appState";
 import {
   loadAppList,
   refreshAppList,
-  refreshCurrentApp,
   refreshCurrentAppLogs,
 } from "./services/logService";
 import { applyFilters } from "./services/filterService";

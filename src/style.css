@@ -88,10 +88,9 @@ body {
 .sidebar-header {
   padding: 16px;
   border-bottom: 1px solid var(--border);
-   display: flex;
+  display: flex;
   align-items: center;
   justify-content: space-between;
-
 }
 .sidebar-section h3 {
   font-size: 11px;
@@ -178,7 +177,9 @@ body {
 /* Dashboard Content */
 .dashboard-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -256,6 +257,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
 }
 .groups-list {
   display: flex;
