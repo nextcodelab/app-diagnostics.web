@@ -2,7 +2,7 @@ npm run dev
 npm run build
 npx tsc --noEmit
 
-
+npm uninstall monaco-editor
 
 git status
 git commit -m "Initial App Diagnostics web project"

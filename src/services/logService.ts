@@ -235,7 +235,70 @@ function analyzeRegression(group: ErrorGroup): ErrorGroup {
   }
   return group;
 }
+// =========================================
+// REFRESH APPLICATION LIST
+// =========================================
+
+export async function refreshAppList() {
+  const apps = await fetchApps();
+
+  State.apps = apps;
+
+  // Update app list cache
+  cacheApps(apps);
+
+  // Re-render application menu
+  renderAppList();
+
+  return apps;
+}
+// =========================================
+// REFRESH CURRENT APP LOGS
+// =========================================
+
+export async function refreshCurrentAppLogs() {
+  const currentApp = State.currentSheetName;
+
+  if (!currentApp) {
+    return;
+  }
+  const refreshButton = document.getElementById(
+    "btn-refresh",
+  ) as HTMLButtonElement | null;
+
+  try {
+    if (refreshButton) {
+      refreshButton.disabled = true;
+      refreshButton.textContent = "🔄 Refreshing...";
+    }
+
+    toggleLoading(true);
+
+    const raw = await fetchLogs(currentApp);
+
+    // Update log cache
+    cacheLogs(currentApp, raw);
+
+    // Process fresh logs
+    processLogs(raw);
+
+    populateVersionFilter();
+    applyFilters();
+  } catch (error) {
+    console.error("Refresh failed:", error);
+
+    alert("Failed to refresh application data.");
+  } finally {
+    toggleLoading(false);
+
+    if (refreshButton) {
+      refreshButton.disabled = false;
+      refreshButton.textContent = "🔄 Refresh";
+    }
+  }
+}
 //REFRESH LOGS
+
 export async function refreshCurrentApp() {
   const refreshButton = document.getElementById(
     "btn-refresh",
