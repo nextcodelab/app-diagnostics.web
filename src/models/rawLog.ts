@@ -3,6 +3,7 @@
 export interface RawLog {
   timestamp: string;
   app_name: string;
+  app_name_log: string;
   platform: string;
   level: string;
   type: string;

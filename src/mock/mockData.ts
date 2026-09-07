@@ -9,6 +9,7 @@ export const mockLogs: RawLog[] = [
   {
     timestamp: "2026-09-06T10:32:00.000Z",
     app_name: "shepherd bible",
+    app_name_log: "shepherd bible-windows",
     platform: "windows",
     level: "crash",
     type: "NullReferenceException",
@@ -25,6 +26,7 @@ export const mockLogs: RawLog[] = [
   {
     timestamp: "2026-09-06T09:15:00.000Z",
     app_name: "shepherd bible",
+    app_name_log: "shepherd bible-windows",
     platform: "windows",
     level: "error",
     type: "SQLiteException",
@@ -41,6 +43,7 @@ export const mockLogs: RawLog[] = [
   {
     timestamp: "2026-09-05T14:20:00.000Z",
     app_name: "shepherd bible",
+    app_name_log: "shepherd bible-windows",
     platform: "windows",
     level: "error",
     type: "COMException",
@@ -60,6 +63,7 @@ export const mockLogs: RawLog[] = [
     .map((_, i) => ({
       timestamp: `2026-09-0${Math.max(1, 6 - i)}T00:00:00.000Z`,
       app_name: "shepherd bible",
+      app_name_log: "shepherd bible-windows",
       platform: "windows",
       level: "crash",
       type: "NullReferenceException",

@@ -3,7 +3,11 @@ import {
   populateVersionFilter,
   toggleLoading,
 } from "@/utils/htmHelper";
-import { fetchApps, fetchLogs } from "../api/logsApi";
+// import { fetchApps, fetchLogs } from "../api/logsApi";
+import {
+  fetchApps,
+  fetchLogs,
+} from "../api/firebaseApi";
 import { State } from "../state/appState";
 import type { RawLog } from "@/models/rawLog";
 import type { ProcessedLog } from "../models/processedLog";

@@ -1,4 +1,6 @@
-import { APPSCRIPT_URL } from "./APP_SCRIPT_URL";
+const APPSCRIPT_URL = import.meta.env.VITE_APPSCRIPT_URL;
+
+
 import type { RawLog } from "../models/rawLog";
 
 export async function apiGet<T>(
