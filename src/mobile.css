@@ -1,0 +1,185 @@
+/* /src/mobile.css */
+
+@media screen and (max-width: 768px) {
+  /* 1. LAYOUT ADJUSTMENTS */
+  .layout {
+    flex-direction: column;
+  }
+
+  /* 2. SIDEBAR -> HORIZONTAL SCROLLABLE TABS */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex: 0 0 auto;
+  }
+
+  .sidebar-header {
+    padding: 12px 16px;
+  }
+
+  .sidebar-section h3 {
+    padding: 4px 16px 8px;
+  }
+
+  .app-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px 16px 16px;
+    gap: 12px;
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+  }
+  
+  .app-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-list li {
+    flex: 0 0 auto;
+    min-width: 160px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .app-list li.active {
+    border-left: 1px solid var(--accent);
+    border: 1px solid var(--accent);
+    background-color: var(--bg-surface-hover);
+  }
+
+  /* 3. MAIN CONTENT TOPBAR & SCROLL FIX */
+  .main-content {
+    /* CRITICAL FIX: Forces the flex container to respect screen height so the child can scroll */
+    min-height: 0; 
+    overflow: hidden; 
+  }
+
+  .topbar {
+    height: auto;
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    flex: 0 0 auto;
+  }
+
+  .topbar-right {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .topbar-right .btn {
+    flex: 1;
+    padding: 10px;
+  }
+
+  /* 4. DASHBOARD CONTENT */
+  .dashboard-content {
+    padding: 16px;
+    gap: 20px;
+    /* Enable momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch; 
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  /* 5. CHARTS */
+  .charts-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: auto;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+
+  /* 6. TOOLBAR (Search & Filters) */
+  .toolbar {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
+
+  /* 7. ERROR GROUPS */
+  .group-card {
+    grid-template-columns: 24px 1fr;
+    align-items: flex-start;
+  }
+
+  .group-stats {
+    grid-column: 1 / -1;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .regression-badge {
+    margin-left: 0;
+  }
+
+  /* 8. DETAIL VIEW OVERLAY */
+  .detail-header {
+    padding: 16px;
+    padding-right: 56px;
+  }
+
+  .detail-title h2 {
+    font-size: 16px;
+  }
+  
+  .detail-title p {
+    font-size: 13px;
+  }
+
+  .btn-close {
+    top: 16px;
+    right: 16px;
+  }
+
+  .detail-occurrences {
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .occurrence-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .stack-toolbar {
+    justify-content: flex-start; 
+  }
+  
+  .btn-copy {
+    position: relative;
+    top: 0;
+    right: 0;
+  }
+}
