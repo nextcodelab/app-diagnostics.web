@@ -2,28 +2,29 @@
 
 A lightweight, web-based diagnostics dashboard for viewing, analyzing, and monitoring application logs.
 
-Log data can be collected through:
+The dashboard supports multiple diagnostic backends:
 
-* **Google Apps Script**
+* **Google Apps Script + Google Sheets**
 * **Firebase Firestore**
 
 *Firebase/Firestore/My-Storage/Database/collection/{colllection_name}*
+This allows the application to work with the existing Google Sheets-based diagnostics system while also supporting a faster, scalable Firestore-based backend.
 
-  * `diagnostic_logs` — stores application diagnostic logs
-  * `app_names` — stores registered application names and information
+The project is built with **Vite + TypeScript** and is designed to work as a standalone web application. It can also be built into a self-contained HTML file for use inside a desktop application such as a WinUI-based application.
 
-The dashboard provides a simple way to inspect and monitor application diagnostics from a centralized web interface.
-
-
-The project is built with **Vite + TypeScript** and is designed to work as a standalone web application. It can also be built into a self-contained HTML file for use inside a desktop application such as the WinUI-based application that consumes this diagnostics dashboard.
+---
 
 ## Screenshots
 
-![App Diagnostics Screenshot](https://github.com/nextcodelab/app-diagnostics.web/blob/main/assets/screen.jpeg?raw=true)
+![App Diagnostics Screenshot](assets/screen.jpeg)
 
-## Purpose
+![App Diagnostics Screenshot 2](assets/screen2.jpeg)
 
-`app-diagnostics.web` provides a centralized interface for analyzing application error logs without requiring the diagnostics logic to be implemented directly inside the desktop application.
+---
+
+# Purpose
+
+`app-diagnostics.web` provides a centralized interface for analyzing application diagnostic logs without requiring the diagnostics logic to be implemented directly inside the desktop application.
 
 The dashboard can:
 
@@ -44,58 +45,208 @@ The web application is intended primarily for **developer and application-mainte
 
 ---
 
-## Architecture
+# Supported Backends
 
-The application uses a simple frontend/API architecture:
+The dashboard supports two backend implementations.
+
+## Google Apps Script
+
+The original backend uses Google Apps Script as an API layer over Google Sheets.
+
+```text
+Application
+     │
+     │ diagnostic logs
+     ▼
+Google Sheets
+     │
+     ▼
+Google Apps Script
+     │
+     │ HTTP / JSON
+     ▼
+App Diagnostics Web
+```
+
+This backend is useful for existing applications that already submit their diagnostics to Google Sheets.
+
+## Firebase Firestore
+
+The Firestore backend stores diagnostic information directly in Firebase Cloud Firestore.
+
+```text
+Application
+     │
+     │ diagnostic logs
+     ▼
+Firebase Firestore
+     │
+     │ Firestore query
+     ▼
+App Diagnostics Web
+```
+
+Firestore is particularly useful when applications generate a larger number of diagnostic logs or when faster application-specific queries are required.
+
+---
+
+# Firestore Data Structure
+
+The Firestore backend uses a global diagnostic log collection together with an application-name collection.
+
+```text
+Firestore
+│
+├── diagnostic_logs
+│   └── {logId}
+│       ├── app_name
+│       ├── app_name_log
+│       ├── timestamp
+│       ├── app_version
+│       ├── platform
+│       ├── level
+│       ├── type
+│       ├── message
+│       ├── stack_trace
+│       ├── device
+│       ├── os_version
+│       ├── user
+│       ├── session_id
+│       └── tag
+│
+└── app_names
+    └── {appNameId}
+        ├── app_name
+        └── ...
+```
+
+### `diagnostic_logs`
+
+`diagnostic_logs` stores individual application diagnostic events.
+
+Each log is stored as a separate Firestore document, normally using an automatically generated document ID.
+
+Example:
+
+```text
+diagnostic_logs/{logId}
+```
+
+The dashboard can query logs by `app_name` and retrieve only the logs required for the selected application.
+
+For example:
+
+```text
+diagnostic_logs
+    WHERE app_name == "shepherd bible"
+    ORDER BY timestamp DESC
+    LIMIT 50
+```
+
+This allows the dashboard to retrieve the latest logs for an application without downloading the entire global log collection.
+
+### `app_name_log`
+
+`app_names` stores application-name information used by the Firestore diagnostics system.
+
+It can be used to maintain the list of registered applications and provide application information independently from individual diagnostic log documents.
+
+Example:
+
+```text
+app_names/{appNameId}
+```
+
+The application list can therefore be loaded first, followed by application-specific diagnostic logs.
+
+---
+
+# Firestore Query Flow
+
+A typical Firestore request follows this flow:
+
+```text
+User selects application
+        │
+        ▼
+Application name
+        │
+        ▼
+Firestore query
+        │
+        ▼
+diagnostic_logs
+        │
+        ├── app_name filter
+        ├── timestamp ordering
+        └── result limit
+        │
+        ▼
+RawLog[]
+        │
+        ▼
+Log processing
+        │
+        ▼
+Error grouping
+        │
+        ▼
+Dashboard
+```
+
+The global `diagnostic_logs` collection is intentional. Logs from different applications can coexist in the same collection while queries retrieve only the documents belonging to the selected application.
+
+---
+
+# Architecture
+
+The application uses a backend-independent frontend architecture.
 
 ```text
 ┌──────────────────────────────┐
 │        Application           │
-│     (WinUI / Other Apps)     │
+│     WinUI / Flutter / Web    │
 └──────────────┬───────────────┘
                │
                │ writes diagnostic logs
-               ▼
-┌──────────────────────────────┐
-│       Google Sheets          │
-│        Log Storage           │
-└──────────────┬───────────────┘
                │
-               │ Google Apps Script
-               ▼
+       ┌───────┴────────┐
+       │                │
+       ▼                ▼
+┌──────────────┐  ┌──────────────────┐
+│ Google       │  │ Firebase         │
+│ Apps Script  │  │ Firestore        │
+│ + Sheets     │  │                  │
+└──────┬───────┘  └────────┬─────────┘
+       │                   │
+       │ HTTP / JSON       │ Firestore
+       │                   │ queries
+       └─────────┬─────────┘
+                 ▼
 ┌──────────────────────────────┐
-│      Google Apps Script      │
-│           API                │
-│                              │
-│  - List applications         │
-│  - Return application logs   │
-│  - Process request params    │
-└──────────────┬───────────────┘
-               │
-               │ HTTP / JSON
-               ▼
-┌──────────────────────────────┐
-│      app-diagnostics.web     │
+│     app-diagnostics.web      │
 │                              │
 │      Vite + TypeScript       │
 │                              │
-│  API → Services → State      │
-│                  ↓           │
-│              Components      │
-│                  ↓           │
-│              Dashboard       │
+│ API → Services → State       │
+│                 ↓            │
+│            Components        │
+│                 ↓            │
+│             Dashboard        │
 └──────────────────────────────┘
 ```
+
+The frontend does not depend on a single storage implementation.
+
+The backend can be selected through the application's configuration.
 
 ---
 
 # Google Apps Script API
 
-The frontend communicates with a deployed **Google Apps Script Web App**.
+The frontend can communicate with a deployed **Google Apps Script Web App**.
 
-The Apps Script acts as the backend/API layer between the dashboard and the diagnostic log storage.
-
-The frontend does not directly access Google Sheets. Instead, requests are sent to the Apps Script endpoint and the API returns JSON data.
+The Apps Script acts as the backend/API layer between the dashboard and Google Sheets.
 
 Example:
 
@@ -105,7 +256,7 @@ GET /exec?action=apps
 
 Returns the available applications.
 
-A log request can contain the application/sheet name:
+A log request can contain the application or sheet name:
 
 ```text
 GET /exec?fullname=shepherd%20bible-windows
@@ -113,7 +264,7 @@ GET /exec?fullname=shepherd%20bible-windows
 
 The exact API parameters are defined by the Google Apps Script implementation.
 
-### API responsibilities
+## API Responsibilities
 
 The Apps Script backend is responsible for:
 
@@ -127,15 +278,54 @@ The frontend is responsible for presentation, filtering, grouping, and visualiza
 
 ---
 
+# Firebase Firestore Backend
+
+The Firestore backend communicates directly with Firebase services.
+
+Its responsibilities include:
+
+1. Loading registered application names
+2. Querying application diagnostic logs
+3. Filtering logs by application name
+4. Ordering logs by timestamp
+5. Limiting returned results
+6. Returning diagnostic data to the frontend
+
+The Firestore backend is designed around the global:
+
+```text
+diagnostic_logs
+```
+
+collection.
+
+Application-specific retrieval is performed using the `app_name` field.
+
+Example conceptual query:
+
+```text
+diagnostic_logs
+    app_name == selectedApplication
+    order by timestamp DESC
+    limit N
+```
+
+This avoids loading unrelated applications' logs into the dashboard.
+
+---
+
 # Frontend Structure
 
 The source code is organized by responsibility rather than placing all functionality in a single file.
 
 ```text
 src/
+
 │
 ├── api/
-│   └── logsApi.ts
+│   ├── appScriptApi.ts
+│   ├── firebaseApi.ts
+│   └── ...
 │
 ├── charts/
 │   └── chart.ts
@@ -170,20 +360,25 @@ src/
 │   └── htmHelper.ts
 │
 ├── main.ts
-├── index.ts
+├── index.html
 ├── counter.ts
 └── style.css
 ```
 
 ---
 
-## API Layer
+# API Layer
 
-### `src/api/logsApi.ts`
+## `src/api/appScriptApi.ts` || `firebaseApi.ts`
 
-Responsible for communication with the Google Apps Script backend.
+Responsible for communication with the configured diagnostics backend.
 
-It provides functions such as:
+Depending on the selected backend, the API layer can communicate with:
+
+* Google Apps Script
+* Firebase Firestore
+
+Typical operations include:
 
 ```ts
 fetchApps()
@@ -192,10 +387,10 @@ fetchApps()
 and:
 
 ```ts
-fetchLogs(sheetName)
+fetchLogs(appName)
 ```
 
-The API layer should contain network communication only.
+The API layer should contain network/backend communication only.
 
 It should not contain UI rendering or error-grouping logic.
 
@@ -207,12 +402,13 @@ The models describe the structure of diagnostic data.
 
 ## `rawLog.ts`
 
-Represents a raw log returned by the backend.
+Represents a raw diagnostic log returned by a backend.
 
 ```ts
 export interface RawLog {
   timestamp: string;
   app_name: string;
+  app_name_log: string;
   platform: string;
   level: string;
   type: string;
@@ -227,7 +423,11 @@ export interface RawLog {
 }
 ```
 
-## `processedLog.ts`
+The model can be extended as additional diagnostic information is added.
+
+---
+
+# `processedLog.ts`
 
 Represents a log after it has been analyzed by the frontend.
 
@@ -246,7 +446,9 @@ Log Processing
 ProcessedLog
 ```
 
-## `errorGroup.ts`
+---
+
+# `errorGroup.ts`
 
 Represents a collection of similar errors.
 
@@ -322,6 +524,7 @@ can become:
 
 ```text
 NullReferenceException
+
 ReaderPage.Load()
 
 Occurrences: 3
@@ -355,11 +558,16 @@ The goal is to keep application state separate from rendering logic.
 
 The component layer controls the user interface.
 
-### `appList.ts`
+## `appList.ts`
 
-Displays the list of applications available from the backend.
+Displays the list of applications available from the configured backend.
 
-### `dashboard.ts`
+Applications may be loaded from:
+
+* Google Apps Script
+* Firestore `app_name_log`
+
+## `dashboard.ts`
 
 Displays the main diagnostics dashboard, including:
 
@@ -369,7 +577,7 @@ Displays the main diagnostics dashboard, including:
 * Filters
 * Application information
 
-### `detailView.ts`
+## `detailView.ts`
 
 Displays detailed information about a selected error, including:
 
@@ -381,11 +589,11 @@ Displays detailed information about a selected error, including:
 * Sessions
 * Device information
 
-### `events.ts`
+## `events.ts`
 
 Contains UI event handlers and connects user actions to application services.
 
-### `theme.ts`
+## `theme.ts`
 
 Controls the application's light/dark theme.
 
@@ -401,9 +609,10 @@ Charts can be used to visualize:
 
 * Error occurrences over time
 * Errors by application version
+* Error frequency
 * Other diagnostic statistics
 
-Chart rendering is kept separate from the dashboard logic.
+Chart rendering is kept separate from dashboard logic.
 
 ---
 
@@ -411,15 +620,9 @@ Chart rendering is kept separate from the dashboard logic.
 
 ## `src/mock/mockData.ts`
 
-# Google Appscript code
-This is the Google Apps Script code used with Google Sheets for App Diagnostics. Can be edited and extend the script to add or customize functionality according the needs.
-
-https://github.com/nextcodelab/app-diagnostics.web/blob/main/src/api/appscript_code.js
----
-
 Contains development/test data.
 
-When the Google Apps Script API is unavailable or no API URL is configured, mock data can be used to develop the dashboard without requiring the backend.
+When a backend is unavailable or no backend is configured, mock data can be used to develop the dashboard without requiring a production backend.
 
 This allows frontend development without modifying production diagnostic data.
 
@@ -427,50 +630,115 @@ This allows frontend development without modifying production diagnostic data.
 
 # Data Flow
 
-A typical request follows this flow:
+## Google Apps Script
 
 ```text
 User selects application
-          │
-          ▼
-      appList.ts
-          │
-          ▼
-     logService.ts
-          │
-          ▼
-       logsApi.ts
-          │
-          ▼
- Google Apps Script API
-          │
-          ▼
-    Google Sheets
-          │
-          ▼
-       JSON data
-          │
-          ▼
-     logService.ts
-          │
-          ▼
-    ProcessedLog[]
-          │
-          ▼
- errorGroupingService
-          │
-          ▼
-    ErrorGroup[]
-          │
-          ▼
-     appState.ts
-          │
-          ▼
-     dashboard.ts
-          │
-          ▼
-       Dashboard
+        │
+        ▼
+    appList.ts
+        │
+        ▼
+   logService.ts
+        │
+        ▼
+     appScriptApi.ts
+        │
+        ▼
+Google Apps Script API
+        │
+        ▼
+   Google Sheets
+        │
+        ▼
+    JSON data
+        │
+        ▼
+   logService.ts
+        │
+        ▼
+  ProcessedLog[]
+        │
+        ▼
+errorGroupingService
+        │
+        ▼
+   ErrorGroup[]
+        │
+        ▼
+   appState.ts
+        │
+        ▼
+   dashboard.ts
+        │
+        ▼
+    Dashboard
 ```
+
+## Firebase Firestore
+
+```text
+User selects application
+        │
+        ▼
+    appList.ts
+        │
+        ▼
+   logService.ts
+        │
+        ▼
+     firebaseApi.ts
+        │
+        ▼
+Firebase Firestore
+        │
+        ├── app_names
+        │
+        └── diagnostic_logs
+                │
+                │ app_name filter
+                │ timestamp DESC
+                │ limit
+                ▼
+          RawLog[]
+                │
+                ▼
+         logService.ts
+                │
+                ▼
+        ProcessedLog[]
+                │
+                ▼
+      errorGroupingService
+                │
+                ▼
+          ErrorGroup[]
+                │
+                ▼
+          appState.ts
+                │
+                ▼
+          dashboard.ts
+                │
+                ▼
+           Dashboard
+```
+
+---
+
+# Backend Independence
+
+The frontend is intentionally designed to keep backend-specific implementation separate from the dashboard.
+
+The dashboard should work with a common diagnostic data model regardless of whether the source is:
+
+```text
+Google Apps Script
+        or
+Firebase Firestore
+```
+
+This makes it possible to migrate applications from Google Sheets to Firestore without redesigning the dashboard UI.
 
 ---
 
@@ -506,17 +774,6 @@ The production output is generated in:
 dist/
 ```
 
----
-
-# Standalone HTML
-
-The project uses `vite-plugin-singlefile` to generate a self-contained HTML application.
-
-The production build can therefore embed the JavaScript and CSS directly into:
-
-```text
-dist/index.html
-```
 
 This is useful when the dashboard needs to be opened locally or loaded by another desktop application.
 
@@ -536,6 +793,7 @@ This project is intentionally maintained as a **separate repository** from the W
 
 ```text
 WinUI Application
+
 │
 ├── Native application code
 │
@@ -567,12 +825,27 @@ The project aims to remain:
 * Lightweight
 * Easy to maintain
 * Modular
-* Framework-independent on the backend
+* Backend-independent
 * Suitable for desktop WebView integration
 * Usable as a standalone web application
 * Easy to extend with additional diagnostics
+* Compatible with both Google Apps Script and Firebase Firestore
 
-The frontend should remain focused on **diagnostics visualization and analysis**, while Google Apps Script remains responsible for **data retrieval and backend access**.
+The frontend remains focused on **diagnostics visualization and analysis**, while backend implementations are responsible for **data retrieval and storage access**.
+
+---
+
+# Google Apps Script
+
+The Google Apps Script backend is maintained separately from the frontend.
+
+The Apps Script source used by the project is located in:
+
+```text
+src/api/appscript_code.js
+```
+
+The script can be edited and extended to add or customize Google Sheets-based diagnostics functionality.
 
 ---
 
@@ -580,6 +853,12 @@ The frontend should remain focused on **diagnostics visualization and analysis**
 
 Repository:
 
-`nextcodelab/app-diagnostics.web`
+```text
+nextcodelab/app-diagnostics.web
+```
 
-This repository contains the web frontend only. The Google Apps Script backend is maintained separately.
+This repository contains the web frontend only.
+
+The Google Apps Script backend is maintained separately.
+
+The Firebase Firestore backend is also maintained separately from the frontend UI and can be configured as an alternative diagnostics data source.
