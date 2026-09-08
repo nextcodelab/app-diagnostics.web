@@ -6,6 +6,7 @@ Log data can be collected through:
 
 * **Google Apps Script**
 * **Firebase Firestore**
+
 *Firebase/Firestore/My-Storage/Database/collection/{colllection_name}*
 
   * `diagnostic_logs` — stores application diagnostic logs
