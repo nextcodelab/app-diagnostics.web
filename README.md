@@ -2,6 +2,20 @@
 
 A lightweight web-based diagnostics dashboard for viewing, analyzing, and monitoring application logs collected through **Google Apps Script** or **Firebase/Firestore/My-Storage/Database/collection/diagnostic_logs** || **Firebase/Firestore/My-Storage/Database/collection/app_names**.
 
+A lightweight, web-based diagnostics dashboard for viewing, analyzing, and monitoring application logs.
+
+Log data can be collected through:
+
+* **Google Apps Script**
+* **Firebase Firestore**
+*Firebase/Firestore/My-Storage/Database/collection/{colllection_name}*
+
+  * `diagnostic_logs` — stores application diagnostic logs
+  * `app_names` — stores registered application names and information
+
+The dashboard provides a simple way to inspect and monitor application diagnostics from a centralized web interface.
+
+
 The project is built with **Vite + TypeScript** and is designed to work as a standalone web application. It can also be built into a self-contained HTML file for use inside a desktop application such as the WinUI-based application that consumes this diagnostics dashboard.
 
 ## Screenshots
