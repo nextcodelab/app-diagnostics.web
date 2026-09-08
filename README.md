@@ -8,6 +8,7 @@ The dashboard supports multiple diagnostic backends:
 * **Firebase Firestore**
 
 *Firebase/Firestore/My-Storage/Database/collection/{colllection_name}*
+
 This allows the application to work with the existing Google Sheets-based diagnostics system while also supporting a faster, scalable Firestore-based backend.
 
 The project is built with **Vite + TypeScript** and is designed to work as a standalone web application. It can also be built into a self-contained HTML file for use inside a desktop application such as a WinUI-based application.
