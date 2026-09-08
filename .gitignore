@@ -467,3 +467,5 @@ skills-lock.json
 functions/
 .agents/
 .claude/
+
+*.pem
