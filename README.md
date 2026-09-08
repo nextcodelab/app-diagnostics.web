@@ -1,7 +1,5 @@
 # App Diagnostics Web
 
-A lightweight web-based diagnostics dashboard for viewing, analyzing, and monitoring application logs collected through **Google Apps Script** or **Firebase/Firestore/My-Storage/Database/collection/diagnostic_logs** || **Firebase/Firestore/My-Storage/Database/collection/app_names**.
-
 A lightweight, web-based diagnostics dashboard for viewing, analyzing, and monitoring application logs.
 
 Log data can be collected through:
