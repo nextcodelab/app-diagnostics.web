@@ -10,6 +10,9 @@ The project is built with **Vite + TypeScript** and is designed to run as:
 
 The production diagnostics backend is **Cloudflare Workers + Cloudflare D1**.
 
+![Screenshot](assets/screen.jpeg)
+![Screenshot](assets/screen2.jpeg)
+
 ---
 
 # Architecture
