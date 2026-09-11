@@ -6,10 +6,12 @@ import {
 } from "./services/logService";
 import { applyFilters } from "./services/filterService";
 import { updateCharts } from "./components/chart";
+import { initializeErrorModal } from "./error/errorModal";
 
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
+  initializeErrorModal();
   setupEventListeners();
   loadAppList();
 });

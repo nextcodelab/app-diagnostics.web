@@ -9,7 +9,8 @@ const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJE
 
 let idToken = "";
 
-const LIMIT_LOGS = 50000;
+const INITIAL_LOG_LIMIT = 5000;
+const REFRESH_LOG_LIMIT = 5000;
 
 interface FirebaseAuthResponse {
   idToken: string;
@@ -35,6 +36,21 @@ interface FirestoreListResponse {
 
 interface FirestoreQueryResult {
   document?: FirestoreDocument;
+}
+
+interface FirestoreFilterValue {
+  stringValue?: string;
+  timestampValue?: string;
+}
+
+interface FirestoreFieldFilter {
+  fieldFilter: {
+    field: {
+      fieldPath: string;
+    };
+    op: string;
+    value: FirestoreFilterValue;
+  };
 }
 
 /**
@@ -170,7 +186,10 @@ export async function fetchApps(): Promise<string[]> {
  */
 export async function fetchLogs(
   appNameLog: string,
-  limit = LIMIT_LOGS,
+  options?: {
+    since?: string;
+    limit?: number;
+  },
 ): Promise<RawLog[]> {
   if (!appNameLog.trim()) {
     return [];
@@ -180,10 +199,50 @@ export async function fetchLogs(
     throw new Error("Firebase authentication failed.");
   }
 
+  const since = options?.since;
+  const limit =
+    options?.limit ?? (since ? REFRESH_LOG_LIMIT : INITIAL_LOG_LIMIT);
+
   const url = `${FIRESTORE_BASE_URL.replace(
     "/documents",
     "",
   )}/documents:runQuery`;
+
+  const filters: FirestoreFieldFilter[] = [
+    {
+      fieldFilter: {
+        field: {
+          fieldPath: "app_name_log",
+        },
+
+        op: "EQUAL",
+
+        value: {
+          stringValue: appNameLog,
+        },
+      },
+    },
+  ];
+
+  /**
+   * On refresh, only request records newer than
+   * the newest locally cached record.
+   */
+  if (since) {
+    filters.push({
+      fieldFilter: {
+        field: {
+          fieldPath: "timestamp",
+        },
+
+        op: "GREATER_THAN",
+
+        value: {
+          timestampValue: since,
+        },
+      },
+    });
+  }
 
   const requestBody = {
     structuredQuery: {
@@ -193,19 +252,15 @@ export async function fetchLogs(
         },
       ],
 
-      where: {
-        fieldFilter: {
-          field: {
-            fieldPath: "app_name_log",
-          },
-
-          op: "EQUAL",
-
-          value: {
-            stringValue: appNameLog,
-          },
-        },
-      },
+      where:
+        filters.length === 1
+          ? filters[0]
+          : {
+              compositeFilter: {
+                op: "AND",
+                filters,
+              },
+            },
 
       orderBy: [
         {
@@ -213,7 +268,7 @@ export async function fetchLogs(
             fieldPath: "timestamp",
           },
 
-          direction: "DESCENDING",
+          direction: "ASCENDING",
         },
       ],
 
@@ -232,7 +287,6 @@ export async function fetchLogs(
     body: JSON.stringify(requestBody),
   });
 
-  // Token expired.
   if (response.status === 401) {
     idToken = "";
 
@@ -261,6 +315,17 @@ export async function fetchLogs(
   }
 
   const results = JSON.parse(body) as FirestoreQueryResult[];
+  const logs = results
+    .filter((result) => result.document)
+    .map((result) => convertFirestoreDocument(result.document!));
+
+  console.log("[Firestore] Fetch result", {
+    appNameLog,
+    since: since ?? null,
+    returnedCount: logs.length,
+    oldestTimestamp: logs[0]?.timestamp ?? null,
+    newestTimestamp: logs[logs.length - 1]?.timestamp ?? null,
+  });
 
   return results
     .filter((result) => result.document)

@@ -12,5 +12,5 @@ git push -u origin main
 
 
 git add .
-git commit -m "Update App Diagnostics"
+git commit -m "Minimize Firestore reads: First load: fetch the initial log set. Subsequent refreshes: query only logs newer than the latest timestamp already stored locally. This avoids repeatedly reading the entire log collection."
 git push

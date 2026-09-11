@@ -126,6 +126,49 @@
     </div>
   </div>
 
+  <!-- Error Modal -->
+  <div id="error-modal" class="error-modal hidden" role="dialog" aria-modal="true">
+    <div class="error-modal-backdrop"></div>
+
+    <div class="error-modal-card">
+      <div class="error-modal-header">
+        <div class="error-modal-title-wrap">
+          <div class="error-modal-icon">
+            !
+          </div>
+
+          <div>
+            <h2>Application Error</h2>
+            <p>Something went wrong while loading the application logs.</p>
+          </div>
+        </div>
+
+        <button id="error-modal-close" class="error-modal-close" type="button" aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <div class="error-modal-body">
+        <div class="error-modal-label">
+          <span>Error Details</span>
+        </div>
+
+        <pre id="error-modal-details"></pre>
+      </div>
+
+      <div class="error-modal-footer">
+        <button id="error-modal-copy" class="error-modal-copy" type="button">
+          <span class="copy-icon">⧉</span>
+          <span id="error-modal-copy-text">Copy for AI</span>
+        </button>
+
+        <button id="error-modal-dismiss" class="error-modal-dismiss" type="button">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 
