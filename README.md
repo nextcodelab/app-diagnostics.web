@@ -28,7 +28,7 @@ The current production architecture is:
 ┌──────────────────────────────┐
 │      Cloudflare Worker       │
 │                              │
-│     app-diagnostics-api      │
+│     diagnostics-db-api      │
 │                              │
 │  HTTP API / Validation /     │
 │  D1 database access          │
@@ -38,7 +38,7 @@ The current production architecture is:
 ┌──────────────────────────────┐
 │        Cloudflare D1         │
 │                              │
-│     app-diagnostics-db       │
+│     diagnostics-db       │
 │                              │
 │  app_names                   │
 │  diagnostic_logs             │
@@ -97,7 +97,7 @@ App Diagnostics Web
 Worker name:
 
 ```text
-app-diagnostics-api
+{applogs}-api
 ```
 
 Production API:
@@ -117,13 +117,13 @@ https://{database}.{domain}.workers.dev/api
 Database:
 
 ```text
-app-diagnostics-db
+diagnostics-db
 ```
 
 The Worker accesses D1 through the binding:
 
 ```text
-app_diagnostics_db
+diagnostics-db
 ```
 
 ---
