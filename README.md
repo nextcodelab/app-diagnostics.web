@@ -1,17 +1,18 @@
 # App Diagnostics Web
 
-A lightweight web-based diagnostics dashboard for viewing, analyzing, and monitoring application diagnostic logs.
+A web-based diagnostics dashboard for viewing, analyzing, and monitoring application diagnostic logs.
 
 The project is built with **Vite + TypeScript** and is designed to run as:
 
 * A standalone web application
-* A desktop WebView application
+* A desktop WebView/WebView2 application
 * A diagnostics dashboard for WinUI, Flutter, and other applications
 
-The production diagnostics backend is **Cloudflare Workers + Cloudflare D1**.
+The primary production backend is **Cloudflare Workers + Cloudflare D1**.
 
-![Screenshot](assets/screen.jpeg)
-![Screenshot](assets/screen2.jpeg)
+![App Diagnostics](assets/screen.jpeg)
+
+![App Diagnostics](assets/screen2.jpeg)
 
 ---
 
@@ -31,27 +32,23 @@ The current production architecture is:
 ┌──────────────────────────────┐
 │      Cloudflare Worker       │
 │                              │
-│     diagnostics-db-api      │
-│                              │
-│  HTTP API / Validation /     │
-│  D1 database access          │
+│   HTTP API / Validation /    │
+│   D1 database access         │
 └──────────────┬───────────────┘
                │
                ▼
 ┌──────────────────────────────┐
 │        Cloudflare D1         │
 │                              │
-│     diagnostics-db       │
-│                              │
-│  app_names                   │
-│  diagnostic_logs             │
+│            apps              │
+│            logs              │
 └──────────────┬───────────────┘
                │
                │ GET /api/apps
                │ GET /api/logs
                ▼
 ┌──────────────────────────────┐
-│     App Diagnostics Web      │
+│      App Diagnostics Web     │
 │                              │
 │       Vite + TypeScript      │
 │                              │
@@ -67,7 +64,7 @@ The dashboard does **not** access D1 directly.
 
 All production database access is performed by the Cloudflare Worker API.
 
-This keeps database credentials, SQL queries, schema details, and backend implementation outside the frontend.
+This keeps SQL queries, database implementation details, and backend infrastructure outside the frontend.
 
 ---
 
@@ -75,77 +72,71 @@ This keeps database credentials, SQL queries, schema details, and backend implem
 
 ## Cloudflare Workers + D1
 
-Cloudflare is the primary diagnostics backend.
-
-The Worker provides the HTTP API and Cloudflare D1 provides persistent SQL storage.
+Cloudflare Workers provides the HTTP API and Cloudflare D1 provides persistent SQL storage.
 
 ```text
 Application
+
      │
      │ diagnostic log
      ▼
+
 Cloudflare Worker
+
      │
      │ SQL
      ▼
+
 Cloudflare D1
+
      │
      │ HTTP / JSON
      ▼
+
 App Diagnostics Web
 ```
 
+The Worker is the database boundary between client applications, the dashboard, and D1.
+
 ### Worker
 
-Worker name:
+The Worker project is maintained separately from this frontend repository.
 
 ```text
-{applogs}-api
+app-diagnostics-api
 ```
 
-Production API:
+The production API endpoint is intentionally not documented in this repository.
+
+The Worker exposes the following API routes:
 
 ```text
-https://{database}.{domain}.workers.dev
-```
-
-API base path:
-
-```text
-https://{database}.{domain}.workers.dev/api
+GET  /api/apps
+GET  /api/logs
+POST /api/logs
 ```
 
 ### D1 Database
 
-Database:
+The production diagnostics database is:
 
 ```text
-diagnostics-db
+app-diagnostics-db
 ```
 
-The Worker accesses D1 through the binding:
-
-```text
-diagnostics-db
-```
+The Worker accesses D1 through its configured database binding.
 
 ---
 
 # API Endpoints
 
-The production Worker exposes the following endpoints.
-
-## Get applications
+## Get Applications
 
 ```http
 GET /api/apps
 ```
 
-Example:
-
-```text
-GET https://{database}.{domain}.workers.dev/api/apps
-```
+Returns the applications registered with the diagnostics system.
 
 Example response:
 
@@ -161,11 +152,11 @@ Example response:
 }
 ```
 
-The application list is stored in the D1 `app_names` table.
+Application registration is stored in the `apps` table.
 
 ---
 
-## Get diagnostic logs
+## Get Diagnostic Logs
 
 ```http
 GET /api/logs?app_name_log=<application>
@@ -193,7 +184,7 @@ The Worker limits requests to a maximum of 5,000 records per request.
 
 ---
 
-## Create diagnostic log
+## Create Diagnostic Log
 
 ```http
 POST /api/logs
@@ -223,7 +214,7 @@ Example:
 }
 ```
 
-The `id` is used as the unique identifier for the diagnostic event.
+The `id` is the unique identifier for the diagnostic event.
 
 The Worker uses:
 
@@ -231,7 +222,7 @@ The Worker uses:
 INSERT OR IGNORE
 ```
 
-for diagnostic logs.
+for log insertion.
 
 This makes log delivery **idempotent**.
 
@@ -241,26 +232,26 @@ If a client retries the same log because of a network failure or pending-queue r
 
 # Cloudflare D1 Database
 
-The production diagnostics database contains two primary tables.
+The production diagnostics database contains two primary application tables:
 
 ```text
 Cloudflare D1
 │
-├── app_names
+├── apps
 │
-└── diagnostic_logs
+└── logs
 ```
 
 ---
 
-# `app_names`
+# `apps`
 
-The `app_names` table contains the applications registered with the diagnostics system.
+The `apps` table contains applications registered with the diagnostics system.
 
 Schema:
 
 ```sql
-CREATE TABLE app_names (
+CREATE TABLE apps (
     app_name_log TEXT PRIMARY KEY,
     app_name TEXT NOT NULL,
     platform TEXT
@@ -300,14 +291,14 @@ so repeated diagnostic logs do not create duplicate application entries.
 
 ---
 
-# `diagnostic_logs`
+# `logs`
 
-The `diagnostic_logs` table contains individual diagnostic events.
+The `logs` table contains individual diagnostic events.
 
 Current fields:
 
 ```text
-diagnostic_logs
+logs
 │
 ├── id
 ├── app_name
@@ -331,7 +322,7 @@ diagnostic_logs
 Conceptual schema:
 
 ```sql
-CREATE TABLE diagnostic_logs (
+CREATE TABLE logs (
     id TEXT PRIMARY KEY,
     app_name TEXT,
     app_name_log TEXT NOT NULL,
@@ -359,12 +350,6 @@ CREATE TABLE diagnostic_logs (
 ## `id`
 
 Unique diagnostic event identifier.
-
-Example:
-
-```text
-7e7a4f8e9b7b4f6a9e2c8d5e7a1b3c4d
-```
 
 The client generates this value.
 
@@ -433,7 +418,7 @@ HUAWEI NDZ-WXX9
 
 Optional expiration timestamp.
 
-This can be used for future per-log retention policies.
+This field can support future per-log retention policies.
 
 ---
 
@@ -496,7 +481,7 @@ macos
 
 Identifies the application session associated with the event.
 
-This allows the dashboard to calculate affected sessions and analyze session-specific failures.
+This allows the dashboard to analyze failures by session and determine how many sessions were affected by a particular problem.
 
 ---
 
@@ -510,6 +495,7 @@ Example:
 System.NullReferenceException: Object reference not set...
 
 at ReaderPage.Load()
+
 at ReaderPage.Initialize()
 ```
 
@@ -543,7 +529,7 @@ Example:
 2026-09-11T10:00:00.000Z
 ```
 
-UTC timestamps are used so logs from different platforms and geographic locations can be compared consistently.
+UTC timestamps allow logs from different platforms and geographic locations to be compared consistently.
 
 ---
 
@@ -601,7 +587,7 @@ The value is stored as a D1 `INTEGER`.
 
 Optional additional diagnostic information.
 
-The field is intentionally flexible and can contain multiple diagnostic values.
+The field can contain multiple diagnostic values while remaining flexible for different client platforms.
 
 Example:
 
@@ -619,16 +605,19 @@ Region: PH (en-US) |
 Timezone: UTC+08:00
 ```
 
-The dashboard parses this information into semantic groups:
+The dashboard presents this information in semantic groups:
 
 ```text
 System Specs
+
 App Diagnostics
+
 Network & Locale
+
 Additional Info
 ```
 
-This allows diagnostic information to remain human-readable while still providing structured presentation in the UI.
+This keeps the stored information flexible while providing a structured user interface.
 
 ---
 
@@ -636,7 +625,7 @@ This allows diagnostic information to remain human-readable while still providin
 
 The Worker is the only production component that communicates directly with D1.
 
-Its responsibilities are:
+Its responsibilities include:
 
 1. Receive diagnostic logs.
 2. Validate required fields.
@@ -647,7 +636,7 @@ Its responsibilities are:
 7. Support incremental timestamp-based retrieval.
 8. Limit result size.
 9. Return JSON responses.
-10. Periodically remove expired diagnostic data.
+10. Periodically remove old diagnostic data.
 
 The frontend does not contain D1 SQL queries.
 
@@ -655,7 +644,7 @@ The frontend does not contain D1 SQL queries.
 
 # Incremental Log Retrieval
 
-The dashboard can request only logs that were created after a known timestamp.
+The dashboard can request only logs created after a known timestamp.
 
 Example:
 
@@ -665,7 +654,7 @@ GET /api/logs
     &since=2026-09-11T10:00:00.000Z
 ```
 
-The Worker performs:
+The Worker performs a query conceptually equivalent to:
 
 ```sql
 SELECT
@@ -686,16 +675,16 @@ SELECT
     type,
     duration,
     info
-FROM diagnostic_logs
+FROM logs
 WHERE app_name_log = ?
   AND timestamp > ?
 ORDER BY timestamp ASC
-LIMIT ?
+LIMIT ?;
 ```
 
-This is useful for applications that already have locally cached diagnostic data.
+This is useful when the dashboard already has previously loaded diagnostic data.
 
-Instead of downloading the complete diagnostic history every time, the client can request only new records.
+Instead of downloading the complete history every time, it can request only newer records.
 
 ---
 
@@ -709,112 +698,30 @@ Current retention:
 60 days
 ```
 
-The Worker cleanup operation removes records where:
+The Worker cleanup operation removes records older than the configured retention period.
+
+Conceptually:
 
 ```sql
-timestamp < cutoff
+DELETE FROM logs
+WHERE timestamp < cutoff;
 ```
 
-The cleanup runs through a Cloudflare Cron Trigger.
+Cleanup runs through a Cloudflare Cron Trigger.
 
-Example:
+The application registry in `apps` is not removed during diagnostic log cleanup.
 
-```json
-{
-  "triggers": {
-    "crons": ["0 2 * * *"]
-  }
-}
-```
-
-The scheduled Worker performs:
+This means application registration survives diagnostic log retention.
 
 ```text
-Cron Trigger
-     │
-     ▼
-cleanupOldLogs()
-     │
-     ▼
-DELETE FROM diagnostic_logs
-WHERE timestamp < cutoff
+apps
+  │
+  └── Persistent application registry
+
+logs
+  │
+  └── Temporary diagnostic history
 ```
-
-The `app_names` table is not deleted during diagnostic log cleanup.
-
-Application registration therefore survives log retention.
-
----
-
-# Cloudflare Worker Project
-
-The Worker is maintained separately from the dashboard frontend.
-
-Example project:
-
-```text
-app-diagnostics-api
-```
-
-Typical structure:
-
-```text
-app-diagnostics-api/
-│
-├── src/
-│   ├── index.ts
-│   │
-│   └── endpoints/
-│       ├── appList.ts
-│       ├── logCreate.ts
-│       └── logList.ts
-│
-├── wrangler.jsonc
-├── package.json
-└── tsconfig.json
-```
-
-The Worker uses:
-
-* Cloudflare Workers
-* Hono
-* Chanfana
-* Cloudflare D1
-
----
-
-# Worker Configuration
-
-The D1 binding is configured in `wrangler.jsonc`.
-
-Example:
-
-```json
-{
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "app-diagnostics-api",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-09-07",
-  "observability": {
-    "enabled": true
-  },
-  "upload_source_maps": true,
-  "d1_databases": [
-    {
-      "binding": "app_diagnostics_db",
-      "database_name": "app-diagnostics-db",
-      "database_id": "ae653228-2e81-41d1-a802-be3e99988429"
-    }
-  ],
-  "triggers": {
-    "crons": ["0 2 * * *"]
-  }
-}
-```
-
-The actual Cloudflare account identifiers and private credentials should not be committed to source control when they are sensitive.
-
-The Worker URL itself is not a secret.
 
 ---
 
@@ -835,7 +742,7 @@ GET /api/apps
 Cloudflare Worker
         │
         ▼
-D1 app_names
+D1 apps
         │
         ▼
 Application list
@@ -850,7 +757,7 @@ GET /api/logs
 Cloudflare Worker
         │
         ▼
-D1 diagnostic_logs
+D1 logs
         │
         ▼
 RawLog[]
@@ -986,7 +893,7 @@ src/
 
 ## `cloudflareApi.ts`
 
-The primary API implementation.
+The primary production API implementation.
 
 Responsibilities:
 
@@ -1034,27 +941,20 @@ Example:
 ```ts
 export interface RawLog {
   id: string;
-
   app_name: string;
   app_name_log: string;
-
   app_version: string;
   device: string;
   expire_at: string | null;
-
   level: string;
   message: string;
-
   os_version: string;
   platform: string;
-
   session_id: string;
   stack_trace: string;
-
   tag: string;
   timestamp: string;
   type: string;
-
   duration: number | null;
   info: string | null;
 }
@@ -1096,7 +996,7 @@ ProcessedLog
 
 `errorGroup.ts` represents multiple diagnostic events that appear to belong to the same underlying problem.
 
-Example:
+For example:
 
 ```text
 System.NullReferenceException
@@ -1143,7 +1043,7 @@ Responsible for:
 
 ## `errorGroupingService.ts`
 
-Determines when multiple diagnostic events represent the same error.
+Determines when multiple diagnostic events represent the same underlying problem.
 
 Grouping can consider:
 
@@ -1162,8 +1062,11 @@ Examples:
 
 ```text
 Application version
+
 Exception type
+
 Search text
+
 Diagnostic type
 ```
 
@@ -1177,12 +1080,19 @@ Example state:
 
 ```text
 Available applications
+
 Current application
+
 Loaded logs
+
 Filtered logs
+
 Error groups
+
 Selected filters
+
 Current theme
+
 Chart state
 ```
 
@@ -1202,9 +1112,10 @@ Example:
 Applications
 
 Shepherd Bible
+
 Cash References
+
 English Word Search
-...
 ```
 
 ---
@@ -1245,8 +1156,11 @@ Diagnostic information is visually grouped into:
 
 ```text
 System Specs
+
 App Diagnostics
+
 Network & Locale
+
 Additional Info
 ```
 
@@ -1282,9 +1196,13 @@ Possible visualizations include:
 
 ```text
 Errors over time
+
 Errors by version
+
 Errors by type
+
 Error frequency
+
 Affected sessions
 ```
 
@@ -1303,12 +1221,15 @@ Stack Trace
 ────────────────────────────────────────
 
 System.NullReferenceException
+
     at ReaderPage.Load()
+
     at ReaderPage.Initialize()
 
 ────────────────────────────────────────
 
 System Specs
+
 ┌────────────────────────────────────────┐
 │ OS       Windows 11 (10.0.26200)      │
 │ Device   HUAWEI NDZ-WXX9              │
@@ -1317,18 +1238,20 @@ System Specs
 └────────────────────────────────────────┘
 
 App Diagnostics
+
 ┌────────────────────────────────────────┐
-│ Memory       171.41 MB                 │
-│ MemoryStatus OverLimit                 │
-│ Duration     13.0 s                    │
+│ Memory        171.41 MB               │
+│ MemoryStatus  OverLimit               │
+│ Duration      13.0 s                  │
 └────────────────────────────────────────┘
 
 Network & Locale
+
 ┌────────────────────────────────────────┐
-│ WiFi       PLDT Home WIFI              │
-│ Internet   No Internet                 │
-│ Region     PH (en-US)                  │
-│ Timezone   UTC+08:00                   │
+│ WiFi        PLDT Home WIFI            │
+│ Internet    No Internet               │
+│ Region      PH (en-US)                │
+│ Timezone    UTC+08:00                 │
 └────────────────────────────────────────┘
 ```
 
@@ -1336,7 +1259,7 @@ Network & Locale
 
 # Mock Data
 
-`src/mock/mockData.ts` contains development/test diagnostic data.
+`src/mock/mockData.ts` contains development and test diagnostic data.
 
 Mock data allows frontend development without requiring access to the production Cloudflare backend.
 
@@ -1362,16 +1285,17 @@ The primary backend is:
 Cloudflare Worker + D1
 ```
 
-Legacy/alternative backends include:
+Legacy or alternative backends include:
 
 ```text
 Google Apps Script + Google Sheets
+
 Firebase Firestore
 ```
 
 The dashboard should not need to change when the backend changes.
 
-The backend-specific differences should remain isolated inside the API layer.
+Backend-specific differences remain isolated inside the API layer.
 
 ---
 
@@ -1393,18 +1317,6 @@ Google Apps Script
      │ HTTP / JSON
      ▼
 App Diagnostics Web
-```
-
-Typical operations included:
-
-```text
-GET /exec?action=apps
-```
-
-and:
-
-```text
-GET /exec?fullname=shepherd%20bible-windows
 ```
 
 The Apps Script backend remains available for applications that still depend on the existing Google Sheets diagnostics infrastructure.
@@ -1429,14 +1341,7 @@ Firebase Firestore
 App Diagnostics Web
 ```
 
-Typical collections:
-
-```text
-diagnostic_logs
-app_names
-```
-
-Application-specific logs can be retrieved using application fields and timestamp filtering.
+The previous diagnostics implementation used application and log collections.
 
 Firestore remains an alternative/legacy backend.
 
@@ -1463,7 +1368,7 @@ D1
 Dashboard
 ```
 
-Advantages of this architecture include:
+Advantages include:
 
 * SQL-based storage
 * Centralized API access
@@ -1486,13 +1391,17 @@ The frontend communicates only with the public Worker API.
 
 ```text
 Browser
+
    │
    │ HTTPS
    ▼
+
 Cloudflare Worker
+
    │
    │ D1 binding
    ▼
+
 Cloudflare D1
 ```
 
@@ -1503,7 +1412,7 @@ The browser does not receive:
 * Cloudflare account credentials
 * Database credentials
 
-The Worker URL is public because it is an HTTP API endpoint.
+The API endpoint is public by design because clients need to communicate with it.
 
 Private Cloudflare credentials must never be embedded in the frontend.
 
@@ -1529,11 +1438,11 @@ POST /api/logs
    Success   Failure
      │         │
      ▼         ▼
- Remove     Keep pending
- from queue  for retry
+  Remove    Keep pending
+  from queue for retry
 ```
 
-Because the diagnostic log contains a stable `id`, retrying the same log is safe.
+Because each diagnostic log contains a stable `id`, retrying the same log is safe.
 
 The Worker uses:
 
@@ -1558,7 +1467,7 @@ POST /api/logs
 the Worker automatically ensures that the application exists in:
 
 ```text
-app_names
+apps
 ```
 
 using:
@@ -1573,7 +1482,7 @@ Example:
 shepherd-bible-windows
         │
         ▼
-app_names
+apps
         │
         ├── app_name_log
         ├── app_name
@@ -1597,16 +1506,16 @@ Current policy:
 The application registry is persistent:
 
 ```text
-app_names
-    ↓
+apps
+  ↓
 persistent
 ```
 
 Diagnostic events are temporary:
 
 ```text
-diagnostic_logs
-    ↓
+logs
+  ↓
 60-day retention
 ```
 
@@ -1620,16 +1529,20 @@ The web dashboard and Cloudflare Worker are separate projects.
 
 ```text
 app-diagnostics.web
+
         │
         │ HTTP
         ▼
+
 app-diagnostics-api
+
         │
         ▼
+
 Cloudflare D1
 ```
 
-### Dashboard repository
+## Dashboard repository
 
 ```text
 nextcodelab/app-diagnostics.web
@@ -1639,16 +1552,23 @@ Contains:
 
 ```text
 Vite
+
 TypeScript
+
 HTML
+
 CSS
+
 Dashboard components
+
 Charts
+
 API clients
+
 Frontend services
 ```
 
-### Worker repository
+## Worker repository
 
 ```text
 app-diagnostics-api
@@ -1658,10 +1578,15 @@ Contains:
 
 ```text
 Cloudflare Worker
+
 Hono
+
 Chanfana
+
 D1 access
+
 API endpoints
+
 Retention cleanup
 ```
 
@@ -1675,22 +1600,22 @@ The WinUI application remains independent from the dashboard repository.
 
 ```text
 ┌─────────────────────────┐
-│      WinUI App          │
+│        WinUI App        │
 │                         │
-│  Diagnostic Logger      │
+│   Diagnostic Logger     │
 └────────────┬────────────┘
              │
              │ HTTPS POST
              ▼
 ┌─────────────────────────┐
-│   Cloudflare Worker     │
+│    Cloudflare Worker    │
 │                         │
-│  app-diagnostics-api    │
+│   app-diagnostics-api   │
 └────────────┬────────────┘
              │
              ▼
 ┌─────────────────────────┐
-│       Cloudflare D1     │
+│      Cloudflare D1      │
 └────────────┬────────────┘
              │
              │ HTTPS GET
@@ -1741,15 +1666,7 @@ Production output:
 dist/
 ```
 
-The project uses:
-
-```ts
-base: "./"
-```
-
-so that generated resources can use relative paths.
-
-This makes the build suitable for desktop WebView integration.
+The project uses a relative Vite base path so that generated resources can also work in desktop WebView environments.
 
 ---
 
@@ -1761,7 +1678,7 @@ Install dependencies:
 npm install
 ```
 
-Start development server:
+Start the development server:
 
 ```bash
 npm run dev
@@ -1773,7 +1690,7 @@ Run TypeScript validation:
 npx tsc --noEmit
 ```
 
-Build production output:
+Build the production application:
 
 ```bash
 npm run build
@@ -1812,13 +1729,19 @@ npx wrangler deploy
 Inspect the remote D1 database:
 
 ```bash
-npx wrangler d1 execute app-diagnostics-db --remote --command "SELECT * FROM app_names;"
+npx wrangler d1 execute app-diagnostics-db --remote --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+```
+
+Inspect registered applications:
+
+```bash
+npx wrangler d1 execute app-diagnostics-db --remote --command "SELECT * FROM apps;"
 ```
 
 Inspect recent diagnostic logs:
 
 ```bash
-npx wrangler d1 execute app-diagnostics-db --remote --command "SELECT id, app_name_log, timestamp, duration, info FROM diagnostic_logs ORDER BY timestamp DESC LIMIT 10;"
+npx wrangler d1 execute app-diagnostics-db --remote --command "SELECT id, app_name_log, timestamp, duration, info FROM logs ORDER BY timestamp DESC LIMIT 10;"
 ```
 
 ---
@@ -1845,7 +1768,7 @@ SELECT
     timestamp,
     duration,
     info
-FROM diagnostic_logs
+FROM logs
 WHERE app_name_log = ?
 ORDER BY timestamp ASC
 LIMIT ?;
@@ -1871,7 +1794,7 @@ SELECT
     timestamp,
     duration,
     info
-FROM diagnostic_logs
+FROM logs
 WHERE app_name_log = ?
   AND timestamp > ?
 ORDER BY timestamp ASC
@@ -1935,11 +1858,17 @@ Each error group can expose:
 
 ```text
 Exception
+
 Main stack frame
+
 Occurrences
+
 Affected sessions
+
 Affected versions
+
 Latest occurrence
+
 Diagnostic details
 ```
 
@@ -1955,7 +1884,9 @@ The Worker provides:
 
 ```text
 Application filter
+
 Timestamp cursor
+
 Result limit
 ```
 
@@ -1966,11 +1897,11 @@ For example:
 ```text
 First request
     ↓
-Latest diagnostic data
+Initial diagnostic data
 
 Later request
     ↓
-Only records newer than last timestamp
+Only records newer than the last timestamp
 ```
 
 The frontend can additionally cache previously processed data locally.
@@ -1983,11 +1914,11 @@ The project follows several architectural principles.
 
 ## Cloudflare-first
 
-Cloudflare Workers + D1 is the production backend.
+Cloudflare Workers + D1 is the primary production backend.
 
 ## Backend isolation
 
-The dashboard should not depend on a particular database implementation.
+The dashboard should not depend directly on a particular database implementation.
 
 ## API boundary
 
@@ -1995,7 +1926,11 @@ The Worker provides the database API boundary.
 
 ## Idempotent ingestion
 
-Diagnostic logs use stable IDs and `INSERT OR IGNORE`.
+Diagnostic logs use stable IDs and:
+
+```sql
+INSERT OR IGNORE
+```
 
 ## Incremental retrieval
 
@@ -2023,28 +1958,39 @@ Dashboard
 
 ## WebView compatibility
 
-The production build should remain usable as a standalone web application and inside desktop WebView environments.
+The production build remains usable as a standalone web application and inside desktop WebView environments.
 
 ---
 
 # Future Expansion
 
-The Cloudflare architecture can be extended beyond traditional crash diagnostics.
+The diagnostics infrastructure can be extended beyond traditional crash diagnostics.
 
-Potential future event types include:
+Potential event types include:
 
 ```text
 Startup
+
 Session
+
 Performance
+
 Navigation
+
 Network
+
 Database
+
 Backup
+
 Synchronization
+
 Subscription
+
 TTS
+
 Crash
+
 Exception
 ```
 
@@ -2064,19 +2010,19 @@ Session
     duration = 1,240,000 ms
 ```
 
-The same D1 diagnostic infrastructure can therefore support both traditional error diagnostics and application-performance telemetry.
+The same infrastructure can therefore support both traditional error diagnostics and application-performance telemetry.
 
 ---
 
 # Backend Status
 
-| Backend                     | Status             | Purpose                |
-| --------------------------- | ------------------ | ---------------------- |
-| Cloudflare Workers + D1     | **Primary**        | Production diagnostics |
-| Google Apps Script + Sheets | Legacy             | Existing applications  |
-| Firebase Firestore          | Legacy/Alternative | Existing integrations  |
+| Backend                     | Status               | Purpose                |
+| --------------------------- | -------------------- | ---------------------- |
+| Cloudflare Workers + D1     | **Primary**          | Production diagnostics |
+| Google Apps Script + Sheets | Legacy               | Existing applications  |
+| Firebase Firestore          | Legacy / Alternative | Existing integrations  |
 
-The dashboard is intentionally capable of supporting all three, but new production development should target **Cloudflare Workers + D1**.
+The dashboard is intentionally capable of supporting multiple backend implementations, but new production development should target **Cloudflare Workers + D1**.
 
 ---
 
@@ -2102,34 +2048,35 @@ The central production architecture is:
 
 ```text
 ┌───────────────────────┐
-│ Application Clients   │
+│   Application Clients │
 │                       │
-│ WinUI / Flutter / Web │
+│   WinUI / Flutter     │
+│   / Web               │
 └───────────┬───────────┘
             │
             │ HTTPS
             ▼
 ┌───────────────────────┐
-│ Cloudflare Worker     │
+│   Cloudflare Worker   │
 │                       │
-│ app-diagnostics-api   │
+│  app-diagnostics-api  │
 └───────────┬───────────┘
             │
             │ D1 binding
             ▼
 ┌───────────────────────┐
-│ Cloudflare D1         │
+│     Cloudflare D1     │
 │                       │
-│ app_names             │
-│ diagnostic_logs       │
+│        apps           │
+│        logs           │
 └───────────┬───────────┘
             │
             │ HTTPS / JSON
             ▼
 ┌───────────────────────┐
-│ App Diagnostics Web   │
+│  App Diagnostics Web  │
 │                       │
-│ Vite + TypeScript     │
+│   Vite + TypeScript   │
 └───────────────────────┘
 ```
 
@@ -2153,4 +2100,4 @@ The frontend repository contains the dashboard UI and frontend API abstractions.
 
 The Cloudflare repository contains the Worker API and D1 integration.
 
-Google Apps Script and Firebase implementations are maintained separately as legacy/alternative backends.
+Google Apps Script and Firebase implementations are maintained separately as legacy or alternative backends.

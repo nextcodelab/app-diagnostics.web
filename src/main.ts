@@ -14,8 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeErrorModal();
   setupEventListeners();
   loadAppList();
-
-  
 });
 
 function initTheme() {
