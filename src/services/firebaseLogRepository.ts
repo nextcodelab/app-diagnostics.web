@@ -1,3 +1,17 @@
+// IMPORTANT:
+// Minimize Firestore document reads.
+//
+// The initial load may read the existing log set.
+// After that, never reload the entire collection.
+// Use the latest timestamp from the locally cached logs and
+// request only documents newer than that timestamp.
+//
+// This keeps refresh operations incremental and prevents
+// repeatedly consuming Firestore document-read quota.
+//
+// Future WinUI implementation:
+// The same incremental strategy will be handled by C# + SQLite.
+
 import type { RawLog } from "@/models/rawLog";
 import { fetchApps, fetchLogs } from "../api/firebaseApi";
 import type { LogRepository } from "./logRepository";
