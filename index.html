@@ -107,24 +107,42 @@
     </main>
   </div>
 
+
   <div id="error-detail-view" class="detail-view hidden">
+
+    <!-- Detail Header -->
     <header class="detail-header">
-      <button id="btn-back" class="btn-close" aria-label="Close">
+
+      <button id="btn-back" class="btn-close" aria-label="Close" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 6L18 18M18 6L6 18" />
         </svg>
       </button>
+
       <div class="detail-title">
-        <h2 id="detail-exception">ExceptionType</h2>
-        <p id="detail-frame" class="monospace">App.Frame.Location()</p>
-        <p id="detail-message">Error message details.</p>
+        <h2 id="detail-exception">
+          ExceptionType
+        </h2>
+
+        <p id="detail-frame" class="monospace">
+          App.Frame.Location()
+        </p>
+
+        <p id="detail-message">
+          Error message details.
+        </p>
       </div>
-      <div class="detail-stats" id="detail-stats-container">
-      </div>
+
+      <div class="detail-stats" id="detail-stats-container"></div>
+
     </header>
-    <div class="detail-occurrences" id="detail-occurrences-list">
-    </div>
+
+
+    <!-- Error Occurrences -->
+    <main class="detail-occurrences" id="detail-occurrences-list"></main>
+
   </div>
+
 
   <!-- Error Modal -->
   <div id="error-modal" class="error-modal hidden" role="dialog" aria-modal="true">

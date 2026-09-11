@@ -1,3 +1,4 @@
+import type { info } from "node:console";
 
 // --- Types ---
 export interface RawLog {
@@ -16,6 +17,8 @@ export interface RawLog {
   user: string;
   session_id: string;
   tag: string;
+  duration: number;
+  info: string;
 }
 
 

@@ -1,53 +1,80 @@
 :root {
-  /* System/Dark mode defaults */
+  /* =========================================================
+     Theme
+     ========================================================= */
+
   --bg-base: #1e1e1e;
   --bg-surface: #252526;
   --bg-surface-hover: #2a2d2e;
+
   --text-main: #cccccc;
   --text-muted: #858585;
+
   --border: #333333;
+
   --accent: #007acc;
   --danger: #f14c4c;
   --warning: #cca700;
   --info: #3794ff;
+
   --badge-bg: #3c3c3c;
+
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
+
   --font-mono: "Consolas", "Courier New", monospace;
 
+  /* Highlight.js */
   --hljs-keyword: #569cd6;
   --hljs-class: #4ec9b0;
   --hljs-function: #dcdcaa;
   --hljs-string: #ce9178;
   --hljs-comment: #6a9955;
   --hljs-meta: #c586c0;
+
+  /* Code */
   --code-bg: #0d1117;
   --code-text: #c9d1d9;
 }
 
 [data-theme="light"] {
+  /* =========================================================
+     Light Theme
+     ========================================================= */
+
   --bg-base: #f3f3f3;
   --bg-surface: #ffffff;
   --bg-surface-hover: #e8e8e8;
+
   --text-main: #333333;
   --text-muted: #666666;
+
   --border: #cccccc;
+
   --accent: #005a9e;
   --danger: #d13438;
   --warning: #9d8000;
   --info: #005a9e;
+
   --badge-bg: #e0e0e0;
 
-  --hljs-keyword: #ff7b72;
-  --hljs-class: #d2a8ff;
-  --hljs-function: #79c0ff;
-  --hljs-string: #a5d6ff;
-  --hljs-comment: #8b949e;
-  --hljs-meta: #ffa657;
+  /* Highlight.js */
+  --hljs-keyword: #0550ae;
+  --hljs-class: #8250df;
+  --hljs-function: #8250df;
+  --hljs-string: #0a3069;
+  --hljs-comment: #6e7781;
+  --hljs-meta: #953800;
+
+  /* Code */
   --code-bg: #f6f8fa;
   --code-text: #24292e;
 }
+
+/* =========================================================
+   Reset
+   ========================================================= */
 
 * {
   box-sizing: border-box;
@@ -55,310 +82,517 @@
   padding: 0;
 }
 
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-base);
   color: var(--text-main);
+
   font-size: 14px;
+
   overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
 }
 
 .hidden {
   display: none !important;
 }
+
 .monospace {
   font-family: var(--font-mono);
 }
 
-/* Layout */
+/* =========================================================
+   Layout
+   ========================================================= */
+
 .layout {
   display: flex;
-  height: 100vh;
+
   width: 100vw;
+  height: 100vh;
 }
 
-/* Sidebar */
+/* =========================================================
+   Sidebar
+   ========================================================= */
+
 .sidebar {
   width: 250px;
+
   background-color: var(--bg-surface);
+
   border-right: 1px solid var(--border);
+
   display: flex;
   flex-direction: column;
+
+  flex-shrink: 0;
 }
+
 .sidebar-header {
   padding: 16px;
+
   border-bottom: 1px solid var(--border);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .sidebar-section h3 {
-  font-size: 11px;
-  color: var(--text-muted);
   padding: 16px 16px 8px;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
   letter-spacing: 0.5px;
 }
+
 .app-list {
   list-style: none;
+
   overflow-y: auto;
 }
+
 .app-list li {
   padding: 10px 16px;
+
   cursor: pointer;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .app-list li:hover {
   background-color: var(--bg-surface-hover);
 }
+
 .app-list li.active {
   background-color: var(--bg-surface-hover);
+
   border-left: 3px solid var(--accent);
 }
+
 .app-name-wrap {
   display: flex;
   flex-direction: column;
+
   gap: 4px;
+
+  min-width: 0;
 }
+
 .app-name {
   font-weight: 500;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .app-platform {
-  font-size: 11px;
   color: var(--text-muted);
+
+  font-size: 11px;
+
   text-transform: capitalize;
 }
 
-/* Main Content */
+/* =========================================================
+   Main Content
+   ========================================================= */
+
 .main-content {
   flex: 1;
+
+  min-width: 0;
+  min-height: 0;
+
+  position: relative;
+
   display: flex;
   flex-direction: column;
-  position: relative;
 }
+
+/* =========================================================
+   Topbar
+   ========================================================= */
+
 .topbar {
   height: 56px;
+
   padding: 0 24px;
+
+  background-color: var(--bg-surface);
+
+  border-bottom: 1px solid var(--border);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  background-color: var(--bg-surface);
+
+  flex-shrink: 0;
 }
+
 .topbar-left {
   display: flex;
   align-items: center;
+
   gap: 12px;
+
+  min-width: 0;
 }
+
 .badge {
-  background-color: var(--badge-bg);
   padding: 2px 8px;
+
+  background-color: var(--badge-bg);
+
   border-radius: 12px;
+
   font-size: 11px;
+
   text-transform: capitalize;
 }
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+
 .btn {
+  padding: 6px 12px;
+
   background: transparent;
   color: var(--text-main);
+
   border: 1px solid var(--border);
-  padding: 6px 12px;
   border-radius: 4px;
+
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
+
 .btn:hover:not(:disabled) {
   background-color: var(--bg-surface-hover);
+  border-color: var(--accent);
 }
+
 .btn:disabled {
   opacity: 0.5;
+
   cursor: not-allowed;
 }
 
-/* Dashboard Content */
+/* =========================================================
+   Dashboard Content
+   ========================================================= */
+
 .dashboard-content {
   flex: 1;
+
   min-height: 0;
+  min-width: 0;
+
   overflow-y: auto;
   overflow-x: hidden;
+
   padding: 24px;
+
   display: flex;
   flex-direction: column;
+
   gap: 24px;
 }
 
-/* Stats Grid */
+/* =========================================================
+   Stats Grid
+   ========================================================= */
+
 .stats-grid {
   display: grid;
+
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
   gap: 16px;
 }
+
 .stat-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border);
   padding: 16px;
+
+  background-color: var(--bg-surface);
+
+  border: 1px solid var(--border);
   border-radius: 6px;
+
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
+
 .stat-label {
-  font-size: 12px;
   color: var(--text-muted);
+
+  font-size: 12px;
 }
+
 .stat-value {
   font-size: 24px;
   font-weight: 600;
 }
 
-/* Charts */
+/* =========================================================
+   Charts
+   ========================================================= */
+
 .charts-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
   height: 200px;
   min-height: 200px;
+
+  display: grid;
+
+  grid-template-columns: 2fr 1fr;
+
+  gap: 16px;
 }
+
 .chart-container {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 16px;
   position: relative;
+
   min-width: 0;
   min-height: 0;
+
+  padding: 16px;
+
+  background-color: var(--bg-surface);
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
   overflow: hidden;
 }
+
 .chart-container canvas {
   display: block;
+
   max-width: 100%;
   max-height: 100%;
 }
 
-/* Toolbar */
+/* =========================================================
+   Toolbar
+   ========================================================= */
+
 .toolbar {
   display: flex;
+
   gap: 12px;
 }
+
 .search-input,
 .filter-select {
   padding: 8px 12px;
+
   background-color: var(--bg-base);
-  border: 1px solid var(--border);
   color: var(--text-main);
+
+  border: 1px solid var(--border);
   border-radius: 4px;
+
+  outline: none;
 }
+
+.search-input:focus,
+.filter-select:focus {
+  border-color: var(--accent);
+}
+
 .search-input {
   flex: 1;
+
   max-width: 400px;
 }
 
-/* Error Groups */
+/* =========================================================
+   Error Groups
+   ========================================================= */
+
 .error-groups {
+  position: relative;
+
+  z-index: 1;
+
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
+
   gap: 12px;
-  position: relative;
-  z-index: 1;
-  min-width: 0;
 }
+
 .groups-list {
   display: flex;
   flex-direction: column;
+
   gap: 8px;
 }
+
 .group-card {
+  padding: 16px;
+
   background-color: var(--bg-surface);
+
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 16px;
+
   cursor: pointer;
+
   display: grid;
+
   grid-template-columns: 24px 1fr auto;
+
   gap: 16px;
+
   align-items: center;
 }
+
 .group-card:hover {
   border-color: var(--accent);
 }
+
 .group-icon {
   font-size: 16px;
 }
+
 .group-details {
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
+
   gap: 4px;
+
   overflow: hidden;
 }
+
 .group-title {
-  font-weight: 600;
+  color: var(--accent);
+
   font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--accent);
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
+
 .group-message {
+  color: var(--text-main);
+
   white-space: nowrap;
+
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--text-main);
 }
+
 .group-meta {
-  font-size: 12px;
   color: var(--text-muted);
+
+  font-size: 12px;
 }
+
 .group-stats {
   text-align: right;
+
   font-size: 13px;
 }
+
 .regression-badge {
-  color: var(--warning);
-  font-size: 11px;
-  border: 1px solid var(--warning);
-  padding: 2px 6px;
-  border-radius: 4px;
   margin-left: 8px;
+
+  padding: 2px 6px;
+
+  color: var(--warning);
+
+  border: 1px solid var(--warning);
+  border-radius: 4px;
+
+  font-size: 11px;
 }
 
-/* Detail View */
+/* =========================================================
+   Detail View
+   ========================================================= */
+
 .detail-view {
   position: absolute;
-  inset: 0;
-  background-color: var(--bg-base);
-  z-index: 10;
 
-  display: flex;
-  flex-direction: column;
+  inset: 0;
+
+  z-index: 10;
 
   min-width: 0;
   min-height: 0;
+
+  background-color: var(--bg-base);
+
+  display: flex;
+  flex-direction: column;
 }
+
 .detail-header {
   position: relative;
 
   flex: 0 0 auto;
 
+  min-width: 0;
+
   padding: 24px;
   padding-right: 64px;
 
-  border-bottom: 1px solid var(--border);
   background-color: var(--bg-surface);
+
+  border-bottom: 1px solid var(--border);
 
   display: flex;
   flex-direction: column;
-  gap: 12px;
 
-  min-width: 0;
+  gap: 12px;
 }
+
 .detail-title {
   min-width: 0;
 }
 
 .detail-title h2 {
+  color: var(--accent);
+
   font-family: var(--font-mono);
   font-size: 18px;
-  color: var(--accent);
 
   overflow-wrap: anywhere;
 }
+
 .detail-title p {
   overflow-wrap: anywhere;
 }
@@ -370,9 +604,10 @@ body {
 .detail-stats {
   color: var(--text-main);
 }
-/* -----------------------------------------
-   Occurrences
-   ----------------------------------------- */
+
+/* =========================================================
+   Detail Occurrences
+   ========================================================= */
 
 .detail-occurrences {
   flex: 1 1 auto;
@@ -380,19 +615,20 @@ body {
   min-width: 0;
   min-height: 0;
 
+  padding: 24px;
+
   overflow-y: auto;
   overflow-x: hidden;
 
-  padding: 24px;
-
   display: flex;
   flex-direction: column;
+
   gap: 16px;
 }
 
-/* -----------------------------------------
+/* =========================================================
    Occurrence Card
-   ----------------------------------------- */
+   ========================================================= */
 
 .occurrence-card {
   flex: 0 0 auto;
@@ -400,34 +636,36 @@ body {
   min-width: 0;
 
   background-color: var(--bg-surface);
+
   border: 1px solid var(--border);
   border-radius: 6px;
 
   overflow: hidden;
 }
 
-/* -----------------------------------------
+/* =========================================================
    Occurrence Header
-   ----------------------------------------- */
+   ========================================================= */
 
 .occurrence-header {
+  min-width: 0;
+
   padding: 12px 16px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 16px;
 
   cursor: pointer;
 
   font-size: 12px;
 
-  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
 }
 
 .occurrence-header > div {
   min-width: 0;
+
   overflow-wrap: anywhere;
 }
 
@@ -435,204 +673,153 @@ body {
   background-color: var(--bg-surface-hover);
 }
 
-/* -----------------------------------------
+/* =========================================================
    Occurrence Body
-   ----------------------------------------- */
+   ========================================================= */
 
 .occurrence-body {
   position: relative;
 
+  min-width: 0;
+
   padding: 0;
 
+  background-color: var(--code-bg);
+
   border-top: 1px solid var(--border);
-
-  background-color: #111111;
-
-  min-width: 0;
 }
+
+/*
+   The stack trace area is intentionally dark in dark mode
+   and intentionally light in light mode.
+
+   Diagnostic information below it does NOT inherit this
+   code background.
+*/
 
 [data-theme="light"] .occurrence-body {
-  background-color: #f8f8f8;
+  background-color: var(--code-bg);
 }
 
-/* -----------------------------------------
-   Copy Toolbar
-   ----------------------------------------- */
+/* =========================================================
+   Stack Toolbar
+   ========================================================= */
 
 .stack-toolbar {
   height: 42px;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
 
   padding: 6px 10px;
 
   background-color: var(--bg-surface);
 
   border-bottom: 1px solid var(--border);
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
+
+/*
+   IMPORTANT:
+   Only one .btn-copy rule exists.
+   It stays inside .stack-toolbar.
+*/
 
 .btn-copy {
   position: static;
 
-  font-size: 11px;
+  height: 28px;
 
   padding: 4px 10px;
+
+  background: transparent;
+  color: var(--text-main);
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
 }
 
-/* -----------------------------------------
-   Monaco Stack Trace
-   ----------------------------------------- */
+.btn-copy:hover {
+  background-color: var(--bg-surface-hover);
+
+  border-color: var(--accent);
+}
+
+.btn-copy:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   Stack Trace
+   ========================================================= */
 
 .stack-trace {
   width: 100%;
+
   min-width: 0;
+
   margin: 0;
-  padding: 4px 12px;
+  padding: 12px;
+
+  background-color: var(--code-bg);
+  color: var(--code-text);
+
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.6;
+
   white-space: pre-wrap;
+
+  overflow-x: auto;
+
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
 .stack-trace pre {
   margin: 0;
   padding: 0;
+
+  background: transparent;
+
   white-space: pre-wrap;
+
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
 .stack-trace code {
+  background: transparent;
+
+  color: var(--code-text);
+
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.6;
 }
-.btn-copy {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 11px;
-}
 
-/* Loading Overlay */
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(30, 30, 30, 0.7);
-  backdrop-filter: blur(2px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-}
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border);
-  border-top: 4px solid var(--accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-/* -----------------------------------------
-   Close Button
-   ----------------------------------------- */
-
-.btn-close {
-  position: absolute;
-
-  top: 10px;
-  right: 10px;
-
-  width: 34px;
-  height: 34px;
-
-  padding: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  border-radius: 8px;
-
-  background: rgba(220, 38, 38, 0.12);
-  color: #dc2626;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-.btn-close svg {
-  width: 18px;
-  height: 18px;
-
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.btn-close:hover {
-  background: rgba(220, 38, 38, 0.22);
-  border-color: rgba(220, 38, 38, 0.55);
-}
-
-.btn-close:active {
-  transform: scale(0.92);
-}
-.btn-refresh-apps {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 32px;
-  height: 32px;
-
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-
-  background: transparent;
-  color: var(--text-muted);
-
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.btn-refresh-apps:hover {
-  background: var(--hover-bg);
-  color: var(--text);
-}
-
-.btn-refresh-apps:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Stack trace / Highlight.js styling fallback */
-
-.stack-trace {
-  background-color: var(--code-bg);
-  color: var(--code-text);
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
-}
+/* =========================================================
+   Highlight.js
+   ========================================================= */
 
 .hljs-keyword {
   color: var(--hljs-keyword);
+
   font-weight: bold;
 }
 
@@ -650,6 +837,7 @@ body {
 
 .hljs-comment {
   color: var(--hljs-comment);
+
   font-style: italic;
 }
 
@@ -658,19 +846,381 @@ body {
 }
 
 /* =========================================================
-   Error Modal
+   Occurrence Footer Divider
    ========================================================= */
 
-.error-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
+.occurrence-footer-divider {
+  width: 100%;
+
+  height: 1px;
+
+  margin: 0;
+
+  background-color: var(--border);
+}
+
+/* =========================================================
+   Diagnostic Information Footer
+   ========================================================= */
+
+.occurrence-footer-info {
+  width: 100%;
+
+  padding: 0px;
+
+  background-color: var(--bg-surface);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+/* =========================================================
+   Diagnostic Information Group
+   ========================================================= */
+
+.occurrence-info {
+  width: 100%;
+
+  margin: 0;
+  padding: 9px 10px;
+
+  background-color: var(--bg-base);
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text-main);
+}
+
+/* =========================================================
+   Diagnostic Group Label
+   ========================================================= */
+
+.occurrence-field-label {
+  margin: 0 0 5px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* =========================================================
+   Info Chips
+   ========================================================= */
+
+.info-chips {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  gap: 4px;
+}
+
+/* =========================================================
+   Info Chip
+   ========================================================= */
+
+.info-chip {
+  width: 100%;
+
+  min-height: 23px;
+
+  padding: 4px 8px;
+
+  background-color: var(--code-bg);
+  color: var(--text-main);
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+
+  gap: 5px;
+
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.info-chip strong {
+  flex: 0 0 auto;
+
+  color: var(--text-muted);
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.info-chip span {
+  min-width: 0;
+
+  color: var(--text-main);
+
+  text-align: left;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* =========================================================
+   Duration
+   ========================================================= */
+
+.info-chip.duration-chip {
+  background-color: var(--bg-base);
+
+  color: var(--text-muted);
+
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.info-chip.duration-chip strong {
+  color: var(--text-muted);
+
+  font-family: var(--font-sans);
+}
+
+/* =========================================================
+   Diagnostic Warning
+   ========================================================= */
+
+.info-chip.warning,
+.info-chip.warning-chip {
+  background-color: rgba(255, 77, 79, 0.06);
+
+  border-color: rgba(255, 77, 79, 0.3);
+
+  color: var(--danger);
+}
+
+.info-chip.warning strong,
+.info-chip.warning-chip strong,
+.info-chip.warning span,
+.info-chip.warning-chip span {
+  color: var(--danger);
+}
+
+/* =========================================================
+   Diagnostic Offline
+   ========================================================= */
+
+.info-chip.offline,
+.info-chip.offline-chip {
+  background-color: rgba(250, 173, 20, 0.06);
+
+  border-color: rgba(250, 173, 20, 0.3);
+
+  color: var(--warning);
+}
+
+.info-chip.offline strong,
+.info-chip.offline-chip strong,
+.info-chip.offline span,
+.info-chip.offline-chip span {
+  color: var(--warning);
+}
+
+/* =========================================================
+   Diagnostic Success
+   ========================================================= */
+
+.info-chip.success,
+.info-chip.success-chip {
+  background-color: rgba(82, 196, 26, 0.06);
+
+  border-color: rgba(82, 196, 26, 0.3);
+
+  color: #389e0d;
+}
+
+.info-chip.success strong,
+.info-chip.success-chip strong,
+.info-chip.success span,
+.info-chip.success-chip span {
+  color: #389e0d;
+}
+
+/* =========================================================
+   Info Chip Hover
+   ========================================================= */
+
+.info-chip:hover {
+  background-color: var(--bg-surface-hover);
+
+  border-color: var(--accent);
+}
+
+/* =========================================================
+   Refresh Apps Button
+   ========================================================= */
+
+.btn-refresh-apps {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  background: transparent;
+
+  border: none;
+  border-radius: 6px;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  font-size: 16px;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn-refresh-apps:hover {
+  background-color: var(--bg-surface-hover);
+
+  color: var(--text-main);
+}
+
+.btn-refresh-apps:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   Loading Overlay
+   ========================================================= */
+
+.loading-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 20;
+
+  background-color: rgba(30, 30, 30, 0.7);
+
+  backdrop-filter: blur(2px);
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+
+  margin-bottom: 16px;
+
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+
+  border-radius: 50%;
+
+  animation: spin 1s linear infinite;
+}
+
+/* =========================================================
+   Detail Close Button
+   ========================================================= */
+
+.btn-close {
+  position: absolute;
+
+  top: 10px;
+  right: 10px;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(220, 38, 38, 0.12);
+
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 8px;
+
+  color: #dc2626;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.btn-close:hover {
+  background: rgba(220, 38, 38, 0.22);
+
+  border-color: rgba(220, 38, 38, 0.55);
+}
+
+.btn-close:active {
+  transform: scale(0.92);
+}
+
+.btn-close svg {
+  width: 18px;
+  height: 18px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 2;
+
+  stroke-linecap: round;
+}
+
+/* =========================================================
+   Error Modal
+   ========================================================= */
+
+.error-modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 99999;
+
   padding: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   opacity: 1;
   visibility: visible;
@@ -682,29 +1232,39 @@ body {
 
 .error-modal.hidden {
   opacity: 0;
+
   visibility: hidden;
+
   pointer-events: none;
 }
 
-/* Backdrop */
+/* =========================================================
+   Error Modal Backdrop
+   ========================================================= */
 
 .error-modal-backdrop {
   position: absolute;
+
   inset: 0;
 
   background: rgba(0, 0, 0, 0.58);
 
   backdrop-filter: blur(7px);
+
   -webkit-backdrop-filter: blur(7px);
 }
 
-/* Card */
+/* =========================================================
+   Error Modal Card
+   ========================================================= */
 
 .error-modal-card {
   position: relative;
+
   z-index: 1;
 
   width: min(760px, 100%);
+
   max-height: min(760px, calc(100vh - 48px));
 
   display: flex;
@@ -712,10 +1272,11 @@ body {
 
   overflow: hidden;
 
-  background: var(--bg-base, #ffffff);
-  color: var(--text-main, #1f2937);
+  background: var(--bg-base);
+  color: var(--text-main);
 
-  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border: 1px solid var(--border);
+
   border-radius: 18px;
 
   box-shadow:
@@ -723,6 +1284,7 @@ body {
     0 8px 24px rgba(0, 0, 0, 0.12);
 
   transform: translateY(12px) scale(0.97);
+
   opacity: 0;
 
   transition:
@@ -732,21 +1294,24 @@ body {
 
 .error-modal:not(.hidden) .error-modal-card {
   transform: translateY(0) scale(1);
+
   opacity: 1;
 }
 
-/* Header */
+/* =========================================================
+   Error Modal Header
+   ========================================================= */
 
 .error-modal-header {
+  padding: 22px 22px 18px;
+
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 
   gap: 20px;
 
-  padding: 22px 22px 18px;
-
-  border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-bottom: 1px solid var(--border);
 }
 
 .error-modal-title-wrap {
@@ -754,6 +1319,8 @@ body {
   align-items: center;
 
   gap: 14px;
+
+  min-width: 0;
 }
 
 .error-modal-icon {
@@ -766,9 +1333,10 @@ body {
   align-items: center;
   justify-content: center;
 
+  background: rgba(239, 68, 68, 0.12);
+
   border-radius: 50%;
 
-  background: rgba(239, 68, 68, 0.12);
   color: #ef4444;
 
   font-size: 23px;
@@ -782,17 +1350,22 @@ body {
 
   font-size: 18px;
   font-weight: 700;
+
   letter-spacing: -0.01em;
 }
 
 .error-modal-header p {
   margin: 4px 0 0;
 
-  color: var(--text, #6b7280);
+  color: var(--text-muted);
 
   font-size: 13px;
   line-height: 1.4;
 }
+
+/* =========================================================
+   Error Modal Close
+   ========================================================= */
 
 .error-modal-close {
   width: 34px;
@@ -800,15 +1373,18 @@ body {
 
   flex-shrink: 0;
 
+  padding: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
+  background: transparent;
+
   border: 0;
   border-radius: 9px;
 
-  background: transparent;
-  color: var(--text-main, white);
+  color: var(--text-main);
 
   font-size: 25px;
   line-height: 1;
@@ -816,58 +1392,62 @@ body {
   cursor: pointer;
 
   transition:
-    background 150ms ease,
-    color 150ms ease,
-    transform 150ms ease;
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .error-modal-close:hover {
   background: rgba(127, 127, 127, 0.12);
-  color: var(--text-primary, #111827);
+
+  color: var(--text-main);
 
   transform: rotate(4deg);
 }
 
-/* Body */
+/* =========================================================
+   Error Modal Body
+   ========================================================= */
 
 .error-modal-body {
   min-height: 0;
 
+  padding: 18px 22px 20px;
+
   display: flex;
   flex-direction: column;
-
-  padding: 18px 22px 20px;
 }
 
 .error-modal-label {
+  margin-bottom: 9px;
+
   display: flex;
   align-items: center;
 
-  margin-bottom: 9px;
-
-  color: var(--text, #6b7280);
+  color: var(--text-muted);
 
   font-size: 11px;
   font-weight: 700;
+
   text-transform: uppercase;
+
   letter-spacing: 0.08em;
 }
 
 .error-modal-details {
-  margin: 0;
-
   max-height: 420px;
 
-  overflow: auto;
+  margin: 0;
 
   padding: 16px;
 
-  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  overflow: auto;
+
+  background: var(--bg-base);
+  color: var(--text-main);
+
+  border: 1px solid var(--border);
   border-radius: 11px;
-
-  background: var(--bg-base, #f6f7f9);
-
-  color: var(--text-main, #374151);
 
   font-family:
     "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -876,6 +1456,7 @@ body {
   line-height: 1.6;
 
   white-space: pre-wrap;
+
   word-break: break-word;
 
   scrollbar-width: thin;
@@ -891,36 +1472,41 @@ body {
 
 .error-modal-details::-webkit-scrollbar-thumb {
   background: rgba(127, 127, 127, 0.35);
+
   border-radius: 10px;
 }
 
-/* Footer */
+/* =========================================================
+   Error Modal Footer
+   ========================================================= */
 
 .error-modal-footer {
+  padding: 16px 22px 20px;
+
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
 
   gap: 10px;
 
-  padding: 16px 22px 20px;
-
-  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-top: 1px solid var(--border);
 }
 
-/* Copy button */
+/* =========================================================
+   Error Modal Buttons
+   ========================================================= */
 
 .error-modal-copy,
 .error-modal-dismiss {
   height: 38px;
+
+  padding: 0 15px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   gap: 8px;
-
-  padding: 0 15px;
 
   border-radius: 9px;
 
@@ -930,22 +1516,24 @@ body {
   cursor: pointer;
 
   transition:
-    transform 150ms ease,
-    background 150ms ease,
-    opacity 150ms ease;
+    transform 0.15s ease,
+    background 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .error-modal-copy {
   border: 0;
 
-  background: var(--accent, #2563eb);
-  color: var(--text-main);
+  background: var(--accent);
+
+  color: #ffffff;
 
   box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
 }
 
 .error-modal-copy:hover {
   transform: translateY(-1px);
+
   filter: brightness(1.05);
 }
 
@@ -962,17 +1550,20 @@ body {
 }
 
 .error-modal-dismiss {
-  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border);
 
   background: transparent;
-  color: var(--text-primary, #374151);
+
+  color: var(--text-main);
 }
 
 .error-modal-dismiss:hover {
-  background: rgba(127, 127, 127, 0.1);
+  background: var(--bg-surface-hover);
 }
 
-/* Animation */
+/* =========================================================
+   Animations
+   ========================================================= */
 
 @keyframes errorIconPulse {
   0%,
@@ -985,15 +1576,96 @@ body {
   }
 }
 
-/* Mobile */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
 
 @media (max-width: 600px) {
+  .sidebar {
+    width: 210px;
+  }
+
+  .dashboard-content {
+    padding: 16px;
+
+    gap: 16px;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+
+    height: auto;
+    min-height: 200px;
+  }
+
+  .detail-header {
+    padding: 18px;
+
+    padding-right: 58px;
+  }
+
+  .detail-occurrences {
+    padding: 16px;
+
+    gap: 12px;
+  }
+
+  .occurrence-header {
+    padding: 10px 12px;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 6px;
+  }
+
+  .occurrence-footer-info {
+    padding: 10px;
+  }
+
+  .occurrence-info {
+    padding: 7px 8px;
+  }
+
+  .occurrence-field-label {
+    margin-bottom: 4px;
+
+    font-size: 9px;
+  }
+
+  .info-chips {
+    gap: 3px;
+  }
+
+  .info-chip {
+    min-height: 21px;
+
+    padding: 3px 6px;
+
+    font-size: 10px;
+  }
+
+  .info-chip.duration-chip {
+    font-size: 9px;
+  }
+
   .error-modal {
     padding: 12px;
   }
 
   .error-modal-card {
     max-height: calc(100vh - 24px);
+
     border-radius: 15px;
   }
 
@@ -1016,14 +1688,5 @@ body {
   .error-modal-copy,
   .error-modal-dismiss {
     flex: 1;
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
   }
 }
