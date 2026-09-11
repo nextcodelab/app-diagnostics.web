@@ -339,6 +339,7 @@ function convertFirestoreDocument(document: FirestoreDocument): RawLog {
   const fields = document.fields ?? {};
 
   return {
+    id: "",
     app_name: fields.app_name?.stringValue ?? "",
 
     app_name_log: fields.app_name_log?.stringValue ?? "",

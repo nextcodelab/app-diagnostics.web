@@ -1,6 +1,7 @@
 
 // --- Types ---
 export interface RawLog {
+  id: string;
   timestamp: string;
   app_name: string;
   app_name_log: string;

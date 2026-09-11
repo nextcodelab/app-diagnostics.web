@@ -44,18 +44,10 @@ export default defineConfig({
 
   server: {
     host: "0.0.0.0",
-    https: {
-      cert: "./192.168.0.106+2.pem",
-      key: "./192.168.0.106+2-key.pem",
-    },
   },
 
   preview: {
     host: "0.0.0.0",
-    https: {
-      cert: "./192.168.0.106+2.pem",
-      key: "./192.168.0.106+2-key.pem",
-    },
   },
 
   resolve: {

@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeErrorModal();
   setupEventListeners();
   loadAppList();
+
+  
 });
 
 function initTheme() {
@@ -62,3 +64,6 @@ function setupEventListeners() {
     .getElementById("filter-version")
     ?.addEventListener("change", applyFilters);
 }
+
+
+

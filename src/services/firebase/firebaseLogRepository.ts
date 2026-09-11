@@ -13,8 +13,8 @@
 // The same incremental strategy will be handled by C# + SQLite.
 
 import type { RawLog } from "@/models/rawLog";
-import { fetchApps, fetchLogs } from "../api/firebaseApi";
-import type { LogRepository } from "./logRepository";
+import { fetchApps, fetchLogs } from "../../api/firebaseApi";
+import type { LogRepository } from "../logRepository";
 
 const APP_LIST_CACHE_KEY = "appDiagnostics.appList";
 const LOG_CACHE_PREFIX = "appDiagnostics.logs.";
